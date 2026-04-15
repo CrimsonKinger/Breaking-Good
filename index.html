@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breaking Good — Химический Тест</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Стартовый экран -->
+    <div id="start-screen" class="screen active">
+      <div class="logo">⚗️</div>
+      <h1 class="game-title">Breaking Good</h1>
+      <p class="subtitle">Химический тест — проверь свои знания!</p>
+      <div class="info-bar">
+        <span>📝 10 вопросов</span>
+        <span>🎯 Выбери правильный ответ</span>
+        <span>⭐ Собери максимум баллов</span>
+      </div>
+      <button id="start-btn" class="btn btn-primary">🚀 Начать тест</button>
+    </div>
+
+    <!-- Экран вопроса -->
+    <div id="quiz-screen" class="screen">
+      <div class="quiz-header">
+        <div class="progress-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="quiz-info">
+          <span class="question-counter" id="question-counter">Вопрос 1 / 10</span>
+          <span class="score-display" id="score-display">⭐ 0</span>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-number" id="q-number">Задание 1</div>
+        <h2 class="question-text" id="question-text"></h2>
+        <div class="formula-hint" id="formula-hint"></div>
+        <div class="options" id="options"></div>
+        <div class="feedback hidden" id="feedback"></div>
+      </div>
+
+      <button id="next-btn" class="btn btn-primary hidden">Далее ➡️</button>
+    </div>
+
+    <!-- Экран результатов -->
+    <div id="result-screen" class="screen">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <h2 class="result-title" id="result-title">Тест завершён!</h2>
+      <div class="result-score">
+        <span class="big-score" id="big-score">0</span>
+        <span class="score-label">из 10</span>
+      </div>
+      <p class="result-message" id="result-message"></p>
+      <div class="result-details" id="result-details"></div>
+      <button id="restart-btn" class="btn btn-primary">🔄 Пройти заново</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
