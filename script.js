@@ -1,10 +1,10 @@
-// ===== ДАННЫЕ ВОПРОСОВ (10 ШТУК) =====
-const questions = [
+// ===== БАЗА ВОПРОСОВ (статическая, для многократного использования) =====
+const QUESTIONS_DB = [
   {
     question: "Какой элемент нужно добавить к Ca, чтобы получить оксид кальция?",
     formula: "",
     options: ["H", "OH", "O", "Другое"],
-    correct: 2, // O
+    correct: 2,
     explanation: "Оксид кальция (CaO) образуется при соединении кальция с кислородом (O). Реакция: 2Ca + O₂ → 2CaO"
   },
   {
@@ -25,7 +25,7 @@ const questions = [
     question: "Что нужно добавить к Cl, чтобы получить соляную кислоту?",
     formula: "",
     options: ["H", "HO", "O", "Другое"],
-    correct: 0, // H
+    correct: 0,
     explanation: "Соляная кислота имеет формулу HCl. Это соединение водорода (H) и хлора (Cl)."
   },
   {
@@ -53,7 +53,7 @@ const questions = [
     question: "Сколько всего известных элементов в периодической таблице Менделеева?",
     formula: "",
     options: ["120", "119", "118", "117"],
-    correct: 2, // 118
+    correct: 2,
     explanation: "На данный момент подтверждено открытие и именование 118 элементов."
   },
   {
@@ -67,12 +67,23 @@ const questions = [
     question: "Какой элемент обозначается символом Cu?",
     formula: "",
     options: ["Золото", "Водород", "Кремний", "Медь"],
-    correct: 3, // Медь
+    correct: 3,
     explanation: "Cu (от лат. Cuprum) — это химический символ меди."
   }
 ];
 
+// ===== УТИЛИТА: Перемешивание массива (алгоритм Фишера-Йейтса) =====
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // ===== СОСТОЯНИЕ ИГРЫ =====
+let gameQuestions = []; // Перемешанные вопросы для текущей сессии
 let currentQuestion = 0;
 let score = 0;
 let answers = [];
@@ -101,6 +112,22 @@ const bigScore = document.getElementById('big-score');
 const resultMessage = document.getElementById('result-message');
 const resultDetails = document.getElementById('result-details');
 
+// ===== ПОДГОТОВКА ИГРЫ =====
+function prepareGame() {
+  // 1. Перемешиваем порядок вопросов
+  // 2. Для каждого вопроса перемешиваем варианты ответов
+  // 3. Автоматически находим новый индекс правильного ответа
+  gameQuestions = shuffleArray(QUESTIONS_DB).map(q => {
+    const correctText = q.options[q.correct];
+    const shuffledOptions = shuffleArray(q.options);
+    return {
+      ...q,
+      options: shuffledOptions,
+      correct: shuffledOptions.indexOf(correctText)
+    };
+  });
+}
+
 // ===== ФУНКЦИИ =====
 function switchScreen(hide, show) {
   hide.classList.remove('active');
@@ -111,21 +138,21 @@ function startGame() {
   currentQuestion = 0;
   score = 0;
   answers = [];
+  prepareGame(); // 👈 Рандомизация при старте
   switchScreen(startScreen, quizScreen);
   loadQuestion();
 }
 
 function loadQuestion() {
-  const q = questions[currentQuestion];
+  const q = gameQuestions[currentQuestion];
 
-  const progress = ((currentQuestion) / questions.length) * 100;
+  const progress = ((currentQuestion) / gameQuestions.length) * 100;
   progressBar.style.width = progress + '%';
-  questionCounter.textContent = `Вопрос ${currentQuestion + 1} / ${questions.length}`;
+  questionCounter.textContent = `Вопрос ${currentQuestion + 1} / ${gameQuestions.length}`;
   scoreDisplay.textContent = `⭐ ${score}`;
   qNumber.textContent = `Задание ${currentQuestion + 1}`;
   questionText.textContent = q.question;
 
-  // Формула показывается только если она есть
   if (q.formula && q.formula.trim() !== '') {
     formulaHint.textContent = q.formula;
     formulaHint.style.display = 'block';
@@ -141,13 +168,11 @@ function loadQuestion() {
   q.options.forEach((opt, index) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.dataset.index = index; // Для поддержки клавиатуры
     btn.innerHTML = `<span class="option-number">${index + 1}</span> ${opt}`;
     btn.addEventListener('click', () => selectAnswer(index, btn));
     optionsContainer.appendChild(btn);
   });
 
-  // Сброс анимации карточки
   const card = document.querySelector('.question-card');
   card.style.animation = 'none';
   card.offsetHeight; 
@@ -155,7 +180,7 @@ function loadQuestion() {
 }
 
 function selectAnswer(index, btn) {
-  const q = questions[currentQuestion];
+  const q = gameQuestions[currentQuestion];
   const allBtns = optionsContainer.querySelectorAll('.option-btn');
   const isCorrect = index === q.correct;
 
@@ -184,12 +209,12 @@ function selectAnswer(index, btn) {
     : `❌ Неверно. ${q.explanation}`;
 
   nextBtn.classList.remove('hidden');
-  nextBtn.textContent = currentQuestion === questions.length - 1 ? '📊 Результаты' : 'Далее ➡️';
+  nextBtn.textContent = currentQuestion === gameQuestions.length - 1 ? '📊 Результаты' : 'Далее ➡️';
 }
 
 function nextQuestion() {
   currentQuestion++;
-  if (currentQuestion < questions.length) {
+  if (currentQuestion < gameQuestions.length) {
     loadQuestion();
   } else {
     showResults();
@@ -199,7 +224,7 @@ function nextQuestion() {
 function showResults() {
   switchScreen(quizScreen, resultScreen);
   bigScore.textContent = score;
-  const percent = (score / questions.length) * 100;
+  const percent = (score / gameQuestions.length) * 100;
 
   if (percent === 100) {
     resultIcon.textContent = '🏆';
